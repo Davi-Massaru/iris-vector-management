@@ -1,0 +1,3 @@
+zn "USER"
+try { set runner=##class(%SYS.Python).Import("runpy") do runner."run_path"("/usr/irissys/csp/vector-admin/tools/acceptance_vector_creation.py") } catch error { write !,"VECTOR_CREATION_FAILED: ",error.DisplayString(),! halt }
+halt

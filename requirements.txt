@@ -1,2 +1,2 @@
-Flask==3.1.2
-waitress==3.0.2
+# The portal uses the Python standard library and the IRIS-supplied iris module.
+# Optional offline fixture dependencies are pinned in requirements-fixtures.txt.

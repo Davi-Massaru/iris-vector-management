@@ -1,22 +1,28 @@
-name: argus-iris
+name: iris-vector-management
 services:
-  app:
-    build: .
+  iris:
+    build:
+      context: .
+      args:
+        WITH_FIXTURES: "${WITH_FIXTURES:-1}"
+    image: iris-vector-management:local
     ports:
-      - "127.0.0.1:8000:8000"
-  ollama:
-    image: ollama/ollama@sha256:da6e0dc5651df159e45686fd663c4dbe1624a52c44d7280eeac1551d8f865532
-    profiles: [local-llm]
-    ports:
-      - "127.0.0.1:11434:11434"
-    volumes:
-      - ollama-models:/root/.ollama
+      - "127.0.0.1:52773:52773"
     environment:
-      OLLAMA_NO_CLOUD: "1"
+      VECTOR_ADMIN_NAMESPACES: USER
+      HF_HUB_OFFLINE: "1"
+      TOKENIZERS_PARALLELISM: "false"
+    command: ["--check-caps", "false", "--after", "sh /usr/irissys/csp/vector-admin/tools/set-system-password.sh /run/secrets/iris_password"]
+    secrets:
+      - iris_password
     healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 5s
+      test: ["CMD-SHELL", "iris qlist IRIS | grep -q 'running'"]
+      interval: 15s
       timeout: 5s
-      retries: 20
-volumes:
-  ollama-models:
+      retries: 10
+      start_period: 30s
+    stop_grace_period: 60s
+
+secrets:
+  iris_password:
+    file: ./.local/iris-password.txt

@@ -1,8 +1,4 @@
-from flask import Flask
+"""Compatibility import; served exclusively by the IRIS WSGI host."""
+from vector_admin.app import application
 
-app = Flask(__name__)
-
-
-@app.get("/")
-def hello():
-    return "Hello, world!\n", 200, {"Content-Type": "text/plain; charset=utf-8"}
+app = application

@@ -1,0 +1,2138 @@
+{
+  "/info": {
+    "method": "GET",
+    "path": "/info",
+    "privileges": "Retrieve info about the server, API, and logged in user. Callable if the user has at least one of the %Admin privileges",
+    "parameters": [],
+    "response": {
+      "description": "OK",
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "apiVersion": {
+                "type": "number",
+                "example": 1
+              },
+              "username": {
+                "type": "string"
+              },
+              "serverVersion": {
+                "type": "string",
+                "example": "IRIS for UNIX (Apple macOS for Apple Silicon) 2026.2.0L (Build 142U) Wed Mar 11 2026 01:14:37 EDT"
+              },
+              "systemMode": {
+                "type": "string",
+                "description": "Possible values include \"\", \"LIVE\", \"TEST\", \"DEVELOPMENT\" and \"FAILOVER\""
+              },
+              "product": {
+                "type": "string",
+                "enum": [
+                  "iris",
+                  "irisforhealth",
+                  "healthconnect",
+                  "hs"
+                ]
+              },
+              "namespaces": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "privileges": {
+                "type": "object",
+                "description": "Permissions held by the user on various system-defined security resources. More fields may be added to this schema as IRIS evolves over time",
+                "properties": {
+                  "ExternalLanguageServerEdit": {
+                    "description": "Permissions held by the user on the resource %Admin_ExternalLanguageServerEdit",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "Journal": {
+                    "description": "Permissions held by the user on the resource %Admin_Journal",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "Manage": {
+                    "description": "Permissions held by the user on the resource %Admin_Manage",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "OAuth2_Client": {
+                    "description": "Permissions held by the user on the resource %Admin_OAuth2_Client",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "OAuth2_Registration": {
+                    "description": "Permissions held by the user on the resource %Admin_OAuth2_Registration",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "OAuth2_Server": {
+                    "description": "Permissions held by the user on the resource %Admin_OAuth2_Server",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "Operate": {
+                    "description": "Permissions held by the user on the resource %Admin_Operate",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "Secure": {
+                    "description": "Permissions held by the user on the resource %Admin_Secure",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "Task": {
+                    "description": "Permissions held by the user on the resource %Admin_Task",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "Wallet": {
+                    "description": "Permissions held by the user on the resource %Admin_Wallet",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "FileSystemAccess": {
+                    "description": "Permissions held by the user on the resource %Admin_FileSystemAccess. This field is introduced with v2 of the /api/admin APIs. It might not be present in the GET /info response on older systems.",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "ConfigStore": {
+                    "description": "Permissions held by the user on the resource %Admin_ConfigStore. This field is introduced with v2 of the /api/admin APIs. It might not be present in the GET /info response on older systems.",
+                    "type": "object",
+                    "properties": {
+                      "use": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "/v2/databases": {
+    "method": "GET",
+    "path": "/v2/databases",
+    "privileges": "(%Admin_Manage:U or %Admin_Operate:U) List databases (Config.Databases entries)",
+    "parameters": [
+      {
+        "name": "filter",
+        "in": "query",
+        "required": false,
+        "description": "Return rows containing this filter string",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "description": "These properties correspond to properties of the class Config.Databases",
+                      "properties": {
+                        "Name": {
+                          "type": "string",
+                          "example": "USER"
+                        },
+                        "Directory": {
+                          "type": "string",
+                          "example": "/Users/user/iris/mgr/user/"
+                        },
+                        "Server": {
+                          "type": "string"
+                        },
+                        "ClusterMountMode": {
+                          "type": "boolean"
+                        },
+                        "MountRequired": {
+                          "type": "boolean"
+                        },
+                        "MountAtStartup": {
+                          "type": "boolean"
+                        },
+                        "StreamLocation": {
+                          "type": "string"
+                        },
+                        "Status": {
+                          "type": "string",
+                          "example": "Mounted/RW"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/database": {
+    "method": "GET",
+    "path": "/v2/database",
+    "privileges": "(%Admin_Manage:U) View details of a database (Config.Databases)",
+    "parameters": [
+      {
+        "name": "name",
+        "in": "query",
+        "required": true,
+        "description": "Database name",
+        "schema": {
+          "type": "string"
+        },
+        "example": "USER"
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "These properties correspond to properties of the class Config.Databases",
+                    "properties": {
+                      "MountRequired": {
+                        "description": "Specifies that the database MUST be successfully mounted at startup.<br>0 - Successful mount not required for startup to succeed.<br>1 - Successful mount required for startup to succeed.",
+                        "type": "boolean"
+                      },
+                      "MountAtStartup": {
+                        "description": "On a clustered system, specifies whether the database should be mounted at startup.<br>This property is valid for cluster systems only, and is ignored for non-cluster systems.<br>False - Don't mount at startup<br>True - Mount at startup",
+                        "type": "boolean"
+                      },
+                      "ClusterMountMode": {
+                        "description": "Database is configured to be mounted in cluster mode<br>If this property is set then this database has to be mounted explicitly.",
+                        "type": "boolean"
+                      },
+                      "Directory": {
+                        "description": "Directory where the database resides. On ECP Clients of a mirror this contains logical references to the databases on the failover mirror members as the path may be different on the various nodes.",
+                        "type": "string",
+                        "example": "/Users/user/iris/mgr/"
+                      },
+                      "Server": {
+                        "description": "Name of the remote server where the DB resides.<br>If empty, the database is local.<br>Remote server must already be configured to be entered here.",
+                        "type": "string"
+                      },
+                      "StreamLocation": {
+                        "description": "Directory where the streams associated with this database go.<br>By default (value=\"\"), the location is in the subdirectory \"stream\", underneath the database directory, e.g. for a database located in c:\\abc, the default would be c:\\abc\\stream. InterSystems recommends leaving this parameter as \"\".",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/namespaces": {
+    "method": "GET",
+    "path": "/v2/namespaces",
+    "privileges": "(%Admin_Manage:U) View a list of namespaces",
+    "parameters": [
+      {
+        "name": "filter",
+        "in": "query",
+        "required": false,
+        "description": "Return rows containing this filter string",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Name": {
+                          "type": "string",
+                          "example": "%SYS"
+                        },
+                        "Globals": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        },
+                        "Routines": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        },
+                        "SysGlobals": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        },
+                        "SysRoutines": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        },
+                        "Library": {
+                          "type": "string",
+                          "example": "IRISLIB"
+                        },
+                        "TempGlobals": {
+                          "type": "string",
+                          "example": "IRISTEMP"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/namespace": {
+    "method": "GET",
+    "path": "/v2/namespace",
+    "privileges": "(%Admin_Manage:U) View details of a namespace",
+    "parameters": [
+      {
+        "name": "name",
+        "in": "query",
+        "required": true,
+        "description": "Name of the namespace",
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "These properties correspond to the properties of the class Config.Namespaces",
+                    "properties": {
+                      "Globals": {
+                        "description": "Default database for globals. Required on creation, optional on updates.",
+                        "type": "string",
+                        "example": "USER"
+                      },
+                      "Routines": {
+                        "description": "Default database for routines. Required on creation, optional on updates.",
+                        "type": "string",
+                        "example": "USER"
+                      },
+                      "TempGlobals": {
+                        "description": "Default database for temporary globals.",
+                        "type": "string",
+                        "example": "IRISTEMP"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/namespace/global-mappings": {
+    "method": "GET",
+    "path": "/v2/namespace/global-mappings",
+    "privileges": "(%Admin_Manage:U) View a list of global mappings",
+    "parameters": [
+      {
+        "name": "namespace",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "USER"
+      },
+      {
+        "name": "names",
+        "in": "query",
+        "required": false,
+        "description": "Comma separated list of MapGlobal names. \"* \" - All records match. \"String,String1\" - Any records matching one of these elements. \"String* \" - Any record starting with \"String\". \"String,String1*,String2\" - Any record matching one of these elements, or starting with \"String1\"",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Name": {
+                          "type": "string",
+                          "example": "MyGlobal(3)"
+                        },
+                        "Subscript": {
+                          "type": "string",
+                          "example": "(3)"
+                        },
+                        "Database": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        },
+                        "Collation": {
+                          "description": "Could be a blank string for globals including subscripts, or a string like \"5\"",
+                          "type": "string"
+                        },
+                        "LockDatabase": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/namespace/package-mappings": {
+    "method": "GET",
+    "path": "/v2/namespace/package-mappings",
+    "privileges": "(%Admin_Manage:U) View a list of package mappings",
+    "parameters": [
+      {
+        "name": "namespace",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "USER"
+      },
+      {
+        "name": "names",
+        "in": "query",
+        "required": false,
+        "description": "Comma separated list of MapGlobal names. \"* \" - All records match. \"String,String1\" - Any records matching one of these elements. \"String* \" - Any record starting with \"String\". \"String,String1*,String2\" - Any record matching one of these elements, or starting with \"String1\"",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Name": {
+                          "type": "string",
+                          "example": "MyPackage"
+                        },
+                        "Database": {
+                          "type": "string",
+                          "example": "IRISSYS"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/namespace/routine-mappings": {
+    "method": "GET",
+    "path": "/v2/namespace/routine-mappings",
+    "privileges": "(%Admin_Manage:U) View a list of routine mappings",
+    "parameters": [
+      {
+        "name": "namespace",
+        "in": "query",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "USER"
+      },
+      {
+        "name": "names",
+        "in": "query",
+        "required": false,
+        "description": "Comma separated list of MapGlobal names. \"* \" - All records match. \"String,String1\" - Any records matching one of these elements. \"String* \" - Any record starting with \"String\". \"String,String1*,String2\" - Any record matching one of these elements, or starting with \"String1\"",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Name": {
+                          "type": "string",
+                          "example": "Ens*"
+                        },
+                        "Type": {
+                          "type": "string",
+                          "enum": [
+                            "",
+                            "MAC",
+                            "INT",
+                            "INC",
+                            "OBJ"
+                          ]
+                        },
+                        "Database": {
+                          "type": "string",
+                          "example": "ENSLIB"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/tasks": {
+    "method": "GET",
+    "path": "/v2/tasks",
+    "privileges": "(%Admin_Operate:U or %Admin_Task:U) View a list of tasks",
+    "parameters": [
+      {
+        "name": "filter",
+        "in": "query",
+        "required": false,
+        "description": "Return rows containing this filter string",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "onDemand",
+        "in": "query",
+        "required": false,
+        "description": "If 1, only show tasks which can be ran on demand",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Name": {
+                          "type": "string"
+                        },
+                        "Type": {
+                          "type": "string",
+                          "enum": [
+                            "System",
+                            "Cache",
+                            "User"
+                          ],
+                          "example": "System"
+                        },
+                        "Namespace": {
+                          "type": "string",
+                          "example": "%SYS"
+                        },
+                        "Description": {
+                          "type": "string"
+                        },
+                        "Id": {
+                          "type": "integer"
+                        },
+                        "Suspended": {
+                          "type": "boolean"
+                        },
+                        "LastFinished": {
+                          "description": "Example is \"2026-02-23 00:00\" or \"2026-02-23 00:00:00\"",
+                          "type": "string"
+                        },
+                        "NextScheduled": {
+                          "description": "Example is \"2026-02-23 00:00\" or \"2026-02-23 00:00:00\"",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/task": {
+    "method": "GET",
+    "path": "/v2/task",
+    "privileges": "(%Admin_Operate:U or %Admin_Task:U) View details of a task",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "query",
+        "required": true,
+        "description": "Id of a Task",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "All fields are required in the request body of a POST request to create a new task, except for the Settings field. All fields are optional in the body of a PUT request.",
+                    "properties": {
+                      "Name": {
+                        "description": "Name of the task. Must be 50 characters or less, first character must be a letter. Note that Names longer than 50 characters will be truncated.",
+                        "type": "string"
+                      },
+                      "RunAsUser": {
+                        "description": "Username of user to run as.<br>A user must have the %Admin_Secure:Use privilege to define a task to run as another user.",
+                        "type": "string"
+                      },
+                      "EmailOnCompletion": {
+                        "description": "A list of email addresses to send a completion notification to.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "user@company.com"
+                        }
+                      },
+                      "EmailOnError": {
+                        "description": "A list of email addresses to send an error notification to.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "user@company.com"
+                        }
+                      },
+                      "EmailOnExpiration": {
+                        "description": "A list of email addresses to send notification if the task expires.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "user@company.com"
+                        }
+                      },
+                      "EmailOutput": {
+                        "description": "If an output directory and output file are chosen, and EmailOutput is set to true the output from the entry will be emailed to the email addresses in the EmailOnCompletion property.",
+                        "type": "boolean"
+                      },
+                      "Expires": {
+                        "description": "Whether this entry expires. Expiration is only checked if this flag is set to true. Expiration is determined by whichever is first: 1) The current time passed the next submit time. 2) Expiration Offsets (Days, Hours, Minutes).",
+                        "type": "boolean"
+                      },
+                      "ExpiresDays": {
+                        "description": "",
+                        "type": "integer"
+                      },
+                      "ExpiresHours": {
+                        "description": "",
+                        "type": "integer"
+                      },
+                      "ExpiresMinutes": {
+                        "description": "",
+                        "type": "integer"
+                      },
+                      "OpenOutputFile": {
+                        "description": "If the output from the executed code is to be directed to an outputfile, open the output file.  If the executed code handles the open and close this value should be 0.",
+                        "type": "boolean"
+                      },
+                      "OutputDirectory": {
+                        "description": "If an output directory and output file are chosen, the output from the entry will be directed there.",
+                        "type": "string",
+                        "example": "/Users/user/output"
+                      },
+                      "OutputFilename": {
+                        "description": "If an output directory and output file are chosen, the output from the entry will be directed there. Note that if OutputDirectory is blank, this may contain the full file name.",
+                        "type": "string",
+                        "example": "output.txt"
+                      },
+                      "OutputFileIsBinary": {
+                        "description": "When emailing the output file this flag will indicate if the file should be sent as binary",
+                        "type": "boolean"
+                      },
+                      "SuspendOnError": {
+                        "description": "Option to suspend a Task if it encounters an error during a run. By default the Task is just rescheduled for its next run.<br><br> Note that this only applies to errors returned by the OnTask method. Errors encountered in Task Manager code will suspend the Task.",
+                        "type": "boolean"
+                      },
+                      "SuspendTerminated": {
+                        "description": "Option to suspend a Task if it has been terminated by a system shutdown. By default the Task is just rescheduled for its next run at startup.<br><br>Note that this only applies to Tasks that are found 'terminated' at startup.",
+                        "type": "boolean"
+                      },
+                      "Priority": {
+                        "description": "Background Job priority",
+                        "type": "string",
+                        "enum": [
+                          "Normal",
+                          "Low",
+                          "High"
+                        ]
+                      },
+                      "TaskClass": {
+                        "description": "A class in the specified 'NameSpace' which inherits from %SYS.Task.Definition",
+                        "type": "string",
+                        "example": "%SYS.Task.SwitchJournal"
+                      },
+                      "IsBatch": {
+                        "description": "Batch mode restricts the job to a small section of the buffer pool.<br>false - Don't run in batch mode (default)<br>True - Run in batch mode",
+                        "type": "boolean"
+                      },
+                      "NameSpace": {
+                        "description": "Namespace to run the task in (default=\"%SYS\")",
+                        "type": "string",
+                        "example": "%SYS"
+                      },
+                      "TimePeriod": {
+                        "description": "Time period to run the task.<br>This property governs how the properties TimePeriodEvery and TimePeriodDay are interpreted<br><br>Valid parameters For TimePeriod are<br><br>0 - DAILY<br>TimePeriodEvery - Run every x Days, where Days are 1-7<br>TimePeriodDay - Set to \"\", ignored<br><br>1 - WEEKLY<br>TimePeriodEvery - Run every x Weeks, where weeks are 1-5<br>TimePeriodDay - Run on days xxxx, where Sunday=Day 1,Saturday=Day 7<br>(where 23456 would be Monday thru Friday)<br><br>2 - MONTHLY<br>TimePeriodEvery - Run every x Months, where months are 1-12<br>TimePeriodDay - Run on day x, where day=1-31, where 31=last day of month<br><br>3 - MONTHLYSPECIAL<br>TimePeriodEvery - Run every x Months, where months are 1-12<br>TimePeriodDay - week^day, where week is 1-5, 5 being last, day is 1-7, sunday is day 1<br><br>4 - RUNAFTER - Run this task after another task completes<br>TimePeriodEvery - (not used)<br>TimePeriodDay - 0<br>RunAfterGUID - JobGUID of Task to follow<br><br>5 - ONDEMAND - The task is set up. It can be run On Demand by calling the RunOnce method<br>TimePeriodEvery - \"\",ignored<br>TimePeriodDay - \"\", ignored<br>The user calls the RunOnce Class method to schedule the task after it is set up<br><br>If the Time period fields are not set when a task is created, the task is set by default to be run every day.<br><br>Examples:<br><br>Run every day<br>TimePeriod=0,TimePeriodEvery=1,TimePeriodDay=\"\"<br><br>Run every other day<br>TimePeriod=0,TimePeriodEvery=2,TimePeriodDay=\"\"<br><br>Run every Sunday<br>TimePeriod=1,TimePeriodEvery=1,TimePeriodDay=1<br><br>Run every Monday through Friday<br>TimePeriod=1,TimePeriodEvery=1,TimePeriodDay=23456<br><br>Run every other Saturday<br>TimePeriod=1,TimePeriodEvery=2,TimePeriodDay=7<br><br>Run the first day of every month<br>TimePeriod=2,TimePeriodEvery=1,TimePeriodDay=1<br><br>Run the last day of every month<br>TimePeriod=2,TimePeriodEvery=1,TimePeriodDay=31<br><br>Run the last day of every other month<br>TimePeriod=2,TimePeriodEvery=2,TimePeriodDay=31<br><br>Run the second Saturday of every month<br>TimePeriod=3,TimePeriodEvery=1,TimePeriodDay=2^7<br><br>Run the first Sunday of every month<br>TimePeriod=3,TimePeriodEvery=1,TimePeriodDay=1^1<br><br>Run after task BACKUP completes<br>TimePeriod=4,RunAfterGUID=BackupJobGUID,TimePeriodDay=0<br><br>Task is not scheduled to run. Task is scheduled to run by calling the RunOnce method.<br>TimePeriod=5,TimePeriodEvery=\"\",TimePeriodDay=\"\"",
+                        "type": "string",
+                        "enum": [
+                          "Daily",
+                          "Weekly",
+                          "Monthly",
+                          "Monthly Special",
+                          "Run After",
+                          "On Demand"
+                        ]
+                      },
+                      "TimePeriodEvery": {
+                        "description": "See TimePeriod property for legal values",
+                        "type": "string"
+                      },
+                      "TimePeriodDay": {
+                        "description": "See TimePeriod property for legal values",
+                        "type": "string"
+                      },
+                      "DailyFrequency": {
+                        "description": "How often each day to run the task.<br>This property governs how the properties DailyFrequencyTime, DailyIncrement, DailyStartTime, and DailyEndTime are interpreted.<br><br>Valid parameters for DailyFrequency are:<br><br>0 - ONCE - Run once on the day scheduled<br>DailyFrequencyTime - \"\", ignored<br>DailyIncrement - \"\", ignored<br>DailyStartTime - Time for task to run<br>DailyEndTime - \"\",ignored<br><br>1 - SEVERAL - Run Several times in a day<br>DailyFrequencyTime - 0 - Run every x minutes<br>DailyFrequencyTime - 1 - Run every x hours<br>DailyIncrement - # of minutes between runs or # of hours between runs<br>DailyStartTime - Time for tasks to start running<br>DailyEndTime - Time for task to stop running",
+                        "type": "string",
+                        "enum": [
+                          "Once",
+                          "Several"
+                        ]
+                      },
+                      "DailyFrequencyTime": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string",
+                        "enum": [
+                          "Hourly",
+                          "Minutes"
+                        ]
+                      },
+                      "DailyIncrement": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string"
+                      },
+                      "DailyStartTime": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string",
+                        "example": "23:59:59"
+                      },
+                      "DailyEndTime": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string",
+                        "example": "23:59:59"
+                      },
+                      "RunAfterGUID": {
+                        "description": "Execute this job when specified job completes",
+                        "type": "string"
+                      },
+                      "StartDate": {
+                        "description": "When to schedule the task first<br>Default is to start tomorrow",
+                        "type": "string",
+                        "example": "2026-12-31"
+                      },
+                      "EndDate": {
+                        "description": "When to stop scheduling the task<br>Default is to never stop scheduling",
+                        "type": "string",
+                        "example": "2026-12-31"
+                      },
+                      "MirrorStatus": {
+                        "description": "Used to control the execution of tasks when the system is part of a Mirror. Tasks may be scheduled to run on each Mirror Member, but will only be executed if the current status matches what is indicated by this property. This property is ignored by the Task Manager if the system is not a Mirror member.<br>Status = 1 - run only on Primary Mirror member (default)<br>Status = 2 - run only on a Non-Primary Mirror member<br>Status = 3 - run on Any Mirror member regardless of status",
+                        "type": "string",
+                        "enum": [
+                          "Primary",
+                          "Non-Primary",
+                          "Any"
+                        ]
+                      },
+                      "RescheduleOnStart": {
+                        "description": "If true, when the CheckSchedule class method is called with SystemStart=1 any jobs pending in the task queue will be removed, and rescheduled for their next time. For example, the journal switch is scheduled for midnight. If the system goes down at 11 pm, and then restarts at 1 am, the journal switch would normally run. But since we just started, we don't really want it to switch, so we reschedule it for the next time.<br>Default=0",
+                        "type": "boolean"
+                      },
+                      "Description": {
+                        "description": "Description of task",
+                        "type": "string"
+                      },
+                      "Settings": {
+                        "description": "The settings associated with the TaskClass. This is an arbitrary object and the relevant keys depend on the TaskClass.",
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/task/info": {
+    "method": "GET",
+    "path": "/v2/task/info",
+    "privileges": "(%Admin_Operate:U) View non-configurable info about a task, such as when it last finished or last started",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "query",
+        "required": true,
+        "description": "Id of a Task",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "properties": {
+                      "LastSchedule": {
+                        "description": "When the task was last scheduled to run. \"\" - Never run",
+                        "type": "string",
+                        "example": "2026-12-31 23:59:59"
+                      },
+                      "LastStarted": {
+                        "description": "When the task was last started. \"\" - Never started",
+                        "type": "string",
+                        "example": "2026-12-31 23:59:59"
+                      },
+                      "LastFinished": {
+                        "description": "When the task was last finished. \"\" - did not finish",
+                        "type": "string",
+                        "example": "2026-12-31 23:59:59"
+                      },
+                      "Status": {
+                        "description": "Return value of the method %OnTask.<br><br>If not defined by the task default success will be 1 <br>If the job is currently running (JobRunning) Status will be -1 <br>If there was an untrapped error (JobUntrappedError) Status will be -2 <br>If there was an error before execution (JobSetupError) Status will be -3 <br>If the task timed out trying to job (JobTimeout) Status will be -4 <br>If there was an error after execution (JobPostProcessError) Status will be -5 <br>The text of the status code will be in the property Error.",
+                        "type": "string"
+                      },
+                      "Error": {
+                        "description": "Untrapped error from User task, or \"Success\"",
+                        "type": "string",
+                        "example": "Success"
+                      },
+                      "Type": {
+                        "description": "Type 'System' and 'Maintenance' are reserved for System Tasks. This gets assigned by the system when a task is specified.",
+                        "type": "string",
+                        "enum": [
+                          "System",
+                          "Maintenance",
+                          "User"
+                        ]
+                      },
+                      "NextScheduled": {
+                        "description": "When the task is next scheduled to run.",
+                        "type": "string",
+                        "example": "2026-12-31 23:59:59"
+                      },
+                      "Suspended": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/task/upcoming": {
+    "method": "GET",
+    "path": "/v2/task/upcoming",
+    "privileges": "(%Admin_Operate:U) View a list of upcoming tasks and when they are scheduled to run",
+    "parameters": [
+      {
+        "name": "filter",
+        "in": "query",
+        "required": false,
+        "description": "Return rows containing this filter string",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "hoursOffset",
+        "in": "query",
+        "required": false,
+        "description": "Maximum number of hours ahead to look for scheduled tasks",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "toDatetime",
+        "in": "query",
+        "required": false,
+        "description": "Show tasks scheduled to run before this time",
+        "schema": {
+          "type": "string"
+        },
+        "example": "2026-12-31 23:59:59"
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Id": {
+                          "type": "integer"
+                        },
+                        "Name": {
+                          "type": "string"
+                        },
+                        "Namespace": {
+                          "type": "string"
+                        },
+                        "Datetime": {
+                          "type": "string",
+                          "example": "2026-12-31 23:59:59"
+                        },
+                        "Suspended": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/task/history": {
+    "method": "GET",
+    "path": "/v2/task/history",
+    "privileges": "(%Admin_Operate:U) View a history of previously run tasks",
+    "parameters": [
+      {
+        "name": "taskId",
+        "in": "query",
+        "required": false,
+        "description": "Only view the history for the task with this id",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "filter",
+        "in": "query",
+        "required": false,
+        "description": "Return rows containing this filter string",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "userOnly",
+        "in": "query",
+        "required": false,
+        "description": "If 1, only include history for user-defined tasks",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      {
+        "name": "maxRows",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "number"
+        },
+        "description": "Max number of rows to return. Default value is 1000",
+        "example": 1000
+      }
+    ],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "LastStart": {
+                          "type": "string",
+                          "example": "2026-12-31 23:59:59"
+                        },
+                        "Completed": {
+                          "type": "string",
+                          "example": "2026-12-31 23:59:59"
+                        },
+                        "Name": {
+                          "type": "string"
+                        },
+                        "Status": {
+                          "type": "string"
+                        },
+                        "Result": {
+                          "type": "string"
+                        },
+                        "TaskId": {
+                          "type": "integer"
+                        },
+                        "Namespace": {
+                          "type": "string"
+                        },
+                        "Routine": {
+                          "type": "string"
+                        },
+                        "Pid": {
+                          "type": "string"
+                        },
+                        "ErrDate": {
+                          "type": "string",
+                          "example": "2026-12-31"
+                        },
+                        "ErrNumber": {
+                          "type": "integer"
+                        },
+                        "Username": {
+                          "type": "string"
+                        },
+                        "LogDatetime": {
+                          "type": "string",
+                          "example": "2026-12-31 23:59:59"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "/v2/task/manager": {
+    "method": "GET",
+    "path": "/v2/task/manager",
+    "privileges": "(%Admin_Operate:U or %Admin_Task:U) View the status of the task manager",
+    "parameters": [],
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "properties": {
+                      "Status": {
+                        "type": "string",
+                        "enum": [
+                          "Running",
+                          "Not running",
+                          "Suspended"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  },
+  "POST /v2/task": {
+    "method": "POST",
+    "path": "/v2/task",
+    "privileges": "(%Admin_Operate:U or %Admin_Task:U) Create a new task definition",
+    "parameters": [],
+    "request": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "description": "All fields are required in the request body of a POST request to create a new task, except for the Settings field. All fields are optional in the body of a PUT request.",
+            "properties": {
+              "Name": {
+                "description": "Name of the task. Must be 50 characters or less, first character must be a letter. Note that Names longer than 50 characters will be truncated.",
+                "type": "string"
+              },
+              "RunAsUser": {
+                "description": "Username of user to run as.<br>A user must have the %Admin_Secure:Use privilege to define a task to run as another user.",
+                "type": "string"
+              },
+              "EmailOnCompletion": {
+                "description": "A list of email addresses to send a completion notification to.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "user@company.com"
+                }
+              },
+              "EmailOnError": {
+                "description": "A list of email addresses to send an error notification to.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "user@company.com"
+                }
+              },
+              "EmailOnExpiration": {
+                "description": "A list of email addresses to send notification if the task expires.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "example": "user@company.com"
+                }
+              },
+              "EmailOutput": {
+                "description": "If an output directory and output file are chosen, and EmailOutput is set to true the output from the entry will be emailed to the email addresses in the EmailOnCompletion property.",
+                "type": "boolean"
+              },
+              "Expires": {
+                "description": "Whether this entry expires. Expiration is only checked if this flag is set to true. Expiration is determined by whichever is first: 1) The current time passed the next submit time. 2) Expiration Offsets (Days, Hours, Minutes).",
+                "type": "boolean"
+              },
+              "ExpiresDays": {
+                "description": "",
+                "type": "integer"
+              },
+              "ExpiresHours": {
+                "description": "",
+                "type": "integer"
+              },
+              "ExpiresMinutes": {
+                "description": "",
+                "type": "integer"
+              },
+              "OpenOutputFile": {
+                "description": "If the output from the executed code is to be directed to an outputfile, open the output file.  If the executed code handles the open and close this value should be 0.",
+                "type": "boolean"
+              },
+              "OutputDirectory": {
+                "description": "If an output directory and output file are chosen, the output from the entry will be directed there.",
+                "type": "string",
+                "example": "/Users/user/output"
+              },
+              "OutputFilename": {
+                "description": "If an output directory and output file are chosen, the output from the entry will be directed there. Note that if OutputDirectory is blank, this may contain the full file name.",
+                "type": "string",
+                "example": "output.txt"
+              },
+              "OutputFileIsBinary": {
+                "description": "When emailing the output file this flag will indicate if the file should be sent as binary",
+                "type": "boolean"
+              },
+              "SuspendOnError": {
+                "description": "Option to suspend a Task if it encounters an error during a run. By default the Task is just rescheduled for its next run.<br><br> Note that this only applies to errors returned by the OnTask method. Errors encountered in Task Manager code will suspend the Task.",
+                "type": "boolean"
+              },
+              "SuspendTerminated": {
+                "description": "Option to suspend a Task if it has been terminated by a system shutdown. By default the Task is just rescheduled for its next run at startup.<br><br>Note that this only applies to Tasks that are found 'terminated' at startup.",
+                "type": "boolean"
+              },
+              "Priority": {
+                "description": "Background Job priority",
+                "type": "string",
+                "enum": [
+                  "Normal",
+                  "Low",
+                  "High"
+                ]
+              },
+              "TaskClass": {
+                "description": "A class in the specified 'NameSpace' which inherits from %SYS.Task.Definition",
+                "type": "string",
+                "example": "%SYS.Task.SwitchJournal"
+              },
+              "IsBatch": {
+                "description": "Batch mode restricts the job to a small section of the buffer pool.<br>false - Don't run in batch mode (default)<br>True - Run in batch mode",
+                "type": "boolean"
+              },
+              "NameSpace": {
+                "description": "Namespace to run the task in (default=\"%SYS\")",
+                "type": "string",
+                "example": "%SYS"
+              },
+              "TimePeriod": {
+                "description": "Time period to run the task.<br>This property governs how the properties TimePeriodEvery and TimePeriodDay are interpreted<br><br>Valid parameters For TimePeriod are<br><br>0 - DAILY<br>TimePeriodEvery - Run every x Days, where Days are 1-7<br>TimePeriodDay - Set to \"\", ignored<br><br>1 - WEEKLY<br>TimePeriodEvery - Run every x Weeks, where weeks are 1-5<br>TimePeriodDay - Run on days xxxx, where Sunday=Day 1,Saturday=Day 7<br>(where 23456 would be Monday thru Friday)<br><br>2 - MONTHLY<br>TimePeriodEvery - Run every x Months, where months are 1-12<br>TimePeriodDay - Run on day x, where day=1-31, where 31=last day of month<br><br>3 - MONTHLYSPECIAL<br>TimePeriodEvery - Run every x Months, where months are 1-12<br>TimePeriodDay - week^day, where week is 1-5, 5 being last, day is 1-7, sunday is day 1<br><br>4 - RUNAFTER - Run this task after another task completes<br>TimePeriodEvery - (not used)<br>TimePeriodDay - 0<br>RunAfterGUID - JobGUID of Task to follow<br><br>5 - ONDEMAND - The task is set up. It can be run On Demand by calling the RunOnce method<br>TimePeriodEvery - \"\",ignored<br>TimePeriodDay - \"\", ignored<br>The user calls the RunOnce Class method to schedule the task after it is set up<br><br>If the Time period fields are not set when a task is created, the task is set by default to be run every day.<br><br>Examples:<br><br>Run every day<br>TimePeriod=0,TimePeriodEvery=1,TimePeriodDay=\"\"<br><br>Run every other day<br>TimePeriod=0,TimePeriodEvery=2,TimePeriodDay=\"\"<br><br>Run every Sunday<br>TimePeriod=1,TimePeriodEvery=1,TimePeriodDay=1<br><br>Run every Monday through Friday<br>TimePeriod=1,TimePeriodEvery=1,TimePeriodDay=23456<br><br>Run every other Saturday<br>TimePeriod=1,TimePeriodEvery=2,TimePeriodDay=7<br><br>Run the first day of every month<br>TimePeriod=2,TimePeriodEvery=1,TimePeriodDay=1<br><br>Run the last day of every month<br>TimePeriod=2,TimePeriodEvery=1,TimePeriodDay=31<br><br>Run the last day of every other month<br>TimePeriod=2,TimePeriodEvery=2,TimePeriodDay=31<br><br>Run the second Saturday of every month<br>TimePeriod=3,TimePeriodEvery=1,TimePeriodDay=2^7<br><br>Run the first Sunday of every month<br>TimePeriod=3,TimePeriodEvery=1,TimePeriodDay=1^1<br><br>Run after task BACKUP completes<br>TimePeriod=4,RunAfterGUID=BackupJobGUID,TimePeriodDay=0<br><br>Task is not scheduled to run. Task is scheduled to run by calling the RunOnce method.<br>TimePeriod=5,TimePeriodEvery=\"\",TimePeriodDay=\"\"",
+                "type": "string",
+                "enum": [
+                  "Daily",
+                  "Weekly",
+                  "Monthly",
+                  "Monthly Special",
+                  "Run After",
+                  "On Demand"
+                ]
+              },
+              "TimePeriodEvery": {
+                "description": "See TimePeriod property for legal values",
+                "type": "string"
+              },
+              "TimePeriodDay": {
+                "description": "See TimePeriod property for legal values",
+                "type": "string"
+              },
+              "DailyFrequency": {
+                "description": "How often each day to run the task.<br>This property governs how the properties DailyFrequencyTime, DailyIncrement, DailyStartTime, and DailyEndTime are interpreted.<br><br>Valid parameters for DailyFrequency are:<br><br>0 - ONCE - Run once on the day scheduled<br>DailyFrequencyTime - \"\", ignored<br>DailyIncrement - \"\", ignored<br>DailyStartTime - Time for task to run<br>DailyEndTime - \"\",ignored<br><br>1 - SEVERAL - Run Several times in a day<br>DailyFrequencyTime - 0 - Run every x minutes<br>DailyFrequencyTime - 1 - Run every x hours<br>DailyIncrement - # of minutes between runs or # of hours between runs<br>DailyStartTime - Time for tasks to start running<br>DailyEndTime - Time for task to stop running",
+                "type": "string",
+                "enum": [
+                  "Once",
+                  "Several"
+                ]
+              },
+              "DailyFrequencyTime": {
+                "description": "See DailyFrequency property for legal values",
+                "type": "string",
+                "enum": [
+                  "Hourly",
+                  "Minutes"
+                ]
+              },
+              "DailyIncrement": {
+                "description": "See DailyFrequency property for legal values",
+                "type": "string"
+              },
+              "DailyStartTime": {
+                "description": "See DailyFrequency property for legal values",
+                "type": "string",
+                "example": "23:59:59"
+              },
+              "DailyEndTime": {
+                "description": "See DailyFrequency property for legal values",
+                "type": "string",
+                "example": "23:59:59"
+              },
+              "RunAfterGUID": {
+                "description": "Execute this job when specified job completes",
+                "type": "string"
+              },
+              "StartDate": {
+                "description": "When to schedule the task first<br>Default is to start tomorrow",
+                "type": "string",
+                "example": "2026-12-31"
+              },
+              "EndDate": {
+                "description": "When to stop scheduling the task<br>Default is to never stop scheduling",
+                "type": "string",
+                "example": "2026-12-31"
+              },
+              "MirrorStatus": {
+                "description": "Used to control the execution of tasks when the system is part of a Mirror. Tasks may be scheduled to run on each Mirror Member, but will only be executed if the current status matches what is indicated by this property. This property is ignored by the Task Manager if the system is not a Mirror member.<br>Status = 1 - run only on Primary Mirror member (default)<br>Status = 2 - run only on a Non-Primary Mirror member<br>Status = 3 - run on Any Mirror member regardless of status",
+                "type": "string",
+                "enum": [
+                  "Primary",
+                  "Non-Primary",
+                  "Any"
+                ]
+              },
+              "RescheduleOnStart": {
+                "description": "If true, when the CheckSchedule class method is called with SystemStart=1 any jobs pending in the task queue will be removed, and rescheduled for their next time. For example, the journal switch is scheduled for midnight. If the system goes down at 11 pm, and then restarts at 1 am, the journal switch would normally run. But since we just started, we don't really want it to switch, so we reschedule it for the next time.<br>Default=0",
+                "type": "boolean"
+              },
+              "Description": {
+                "description": "Description of task",
+                "type": "string"
+              },
+              "Settings": {
+                "description": "The settings associated with the TaskClass. This is an arbitrary object and the relevant keys depend on the TaskClass.",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "All fields are required in the request body of a POST request to create a new task, except for the Settings field. All fields are optional in the body of a PUT request.",
+                    "properties": {
+                      "Name": {
+                        "description": "Name of the task. Must be 50 characters or less, first character must be a letter. Note that Names longer than 50 characters will be truncated.",
+                        "type": "string"
+                      },
+                      "RunAsUser": {
+                        "description": "Username of user to run as.<br>A user must have the %Admin_Secure:Use privilege to define a task to run as another user.",
+                        "type": "string"
+                      },
+                      "EmailOnCompletion": {
+                        "description": "A list of email addresses to send a completion notification to.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "user@company.com"
+                        }
+                      },
+                      "EmailOnError": {
+                        "description": "A list of email addresses to send an error notification to.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "user@company.com"
+                        }
+                      },
+                      "EmailOnExpiration": {
+                        "description": "A list of email addresses to send notification if the task expires.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "user@company.com"
+                        }
+                      },
+                      "EmailOutput": {
+                        "description": "If an output directory and output file are chosen, and EmailOutput is set to true the output from the entry will be emailed to the email addresses in the EmailOnCompletion property.",
+                        "type": "boolean"
+                      },
+                      "Expires": {
+                        "description": "Whether this entry expires. Expiration is only checked if this flag is set to true. Expiration is determined by whichever is first: 1) The current time passed the next submit time. 2) Expiration Offsets (Days, Hours, Minutes).",
+                        "type": "boolean"
+                      },
+                      "ExpiresDays": {
+                        "description": "",
+                        "type": "integer"
+                      },
+                      "ExpiresHours": {
+                        "description": "",
+                        "type": "integer"
+                      },
+                      "ExpiresMinutes": {
+                        "description": "",
+                        "type": "integer"
+                      },
+                      "OpenOutputFile": {
+                        "description": "If the output from the executed code is to be directed to an outputfile, open the output file.  If the executed code handles the open and close this value should be 0.",
+                        "type": "boolean"
+                      },
+                      "OutputDirectory": {
+                        "description": "If an output directory and output file are chosen, the output from the entry will be directed there.",
+                        "type": "string",
+                        "example": "/Users/user/output"
+                      },
+                      "OutputFilename": {
+                        "description": "If an output directory and output file are chosen, the output from the entry will be directed there. Note that if OutputDirectory is blank, this may contain the full file name.",
+                        "type": "string",
+                        "example": "output.txt"
+                      },
+                      "OutputFileIsBinary": {
+                        "description": "When emailing the output file this flag will indicate if the file should be sent as binary",
+                        "type": "boolean"
+                      },
+                      "SuspendOnError": {
+                        "description": "Option to suspend a Task if it encounters an error during a run. By default the Task is just rescheduled for its next run.<br><br> Note that this only applies to errors returned by the OnTask method. Errors encountered in Task Manager code will suspend the Task.",
+                        "type": "boolean"
+                      },
+                      "SuspendTerminated": {
+                        "description": "Option to suspend a Task if it has been terminated by a system shutdown. By default the Task is just rescheduled for its next run at startup.<br><br>Note that this only applies to Tasks that are found 'terminated' at startup.",
+                        "type": "boolean"
+                      },
+                      "Priority": {
+                        "description": "Background Job priority",
+                        "type": "string",
+                        "enum": [
+                          "Normal",
+                          "Low",
+                          "High"
+                        ]
+                      },
+                      "TaskClass": {
+                        "description": "A class in the specified 'NameSpace' which inherits from %SYS.Task.Definition",
+                        "type": "string",
+                        "example": "%SYS.Task.SwitchJournal"
+                      },
+                      "IsBatch": {
+                        "description": "Batch mode restricts the job to a small section of the buffer pool.<br>false - Don't run in batch mode (default)<br>True - Run in batch mode",
+                        "type": "boolean"
+                      },
+                      "NameSpace": {
+                        "description": "Namespace to run the task in (default=\"%SYS\")",
+                        "type": "string",
+                        "example": "%SYS"
+                      },
+                      "TimePeriod": {
+                        "description": "Time period to run the task.<br>This property governs how the properties TimePeriodEvery and TimePeriodDay are interpreted<br><br>Valid parameters For TimePeriod are<br><br>0 - DAILY<br>TimePeriodEvery - Run every x Days, where Days are 1-7<br>TimePeriodDay - Set to \"\", ignored<br><br>1 - WEEKLY<br>TimePeriodEvery - Run every x Weeks, where weeks are 1-5<br>TimePeriodDay - Run on days xxxx, where Sunday=Day 1,Saturday=Day 7<br>(where 23456 would be Monday thru Friday)<br><br>2 - MONTHLY<br>TimePeriodEvery - Run every x Months, where months are 1-12<br>TimePeriodDay - Run on day x, where day=1-31, where 31=last day of month<br><br>3 - MONTHLYSPECIAL<br>TimePeriodEvery - Run every x Months, where months are 1-12<br>TimePeriodDay - week^day, where week is 1-5, 5 being last, day is 1-7, sunday is day 1<br><br>4 - RUNAFTER - Run this task after another task completes<br>TimePeriodEvery - (not used)<br>TimePeriodDay - 0<br>RunAfterGUID - JobGUID of Task to follow<br><br>5 - ONDEMAND - The task is set up. It can be run On Demand by calling the RunOnce method<br>TimePeriodEvery - \"\",ignored<br>TimePeriodDay - \"\", ignored<br>The user calls the RunOnce Class method to schedule the task after it is set up<br><br>If the Time period fields are not set when a task is created, the task is set by default to be run every day.<br><br>Examples:<br><br>Run every day<br>TimePeriod=0,TimePeriodEvery=1,TimePeriodDay=\"\"<br><br>Run every other day<br>TimePeriod=0,TimePeriodEvery=2,TimePeriodDay=\"\"<br><br>Run every Sunday<br>TimePeriod=1,TimePeriodEvery=1,TimePeriodDay=1<br><br>Run every Monday through Friday<br>TimePeriod=1,TimePeriodEvery=1,TimePeriodDay=23456<br><br>Run every other Saturday<br>TimePeriod=1,TimePeriodEvery=2,TimePeriodDay=7<br><br>Run the first day of every month<br>TimePeriod=2,TimePeriodEvery=1,TimePeriodDay=1<br><br>Run the last day of every month<br>TimePeriod=2,TimePeriodEvery=1,TimePeriodDay=31<br><br>Run the last day of every other month<br>TimePeriod=2,TimePeriodEvery=2,TimePeriodDay=31<br><br>Run the second Saturday of every month<br>TimePeriod=3,TimePeriodEvery=1,TimePeriodDay=2^7<br><br>Run the first Sunday of every month<br>TimePeriod=3,TimePeriodEvery=1,TimePeriodDay=1^1<br><br>Run after task BACKUP completes<br>TimePeriod=4,RunAfterGUID=BackupJobGUID,TimePeriodDay=0<br><br>Task is not scheduled to run. Task is scheduled to run by calling the RunOnce method.<br>TimePeriod=5,TimePeriodEvery=\"\",TimePeriodDay=\"\"",
+                        "type": "string",
+                        "enum": [
+                          "Daily",
+                          "Weekly",
+                          "Monthly",
+                          "Monthly Special",
+                          "Run After",
+                          "On Demand"
+                        ]
+                      },
+                      "TimePeriodEvery": {
+                        "description": "See TimePeriod property for legal values",
+                        "type": "string"
+                      },
+                      "TimePeriodDay": {
+                        "description": "See TimePeriod property for legal values",
+                        "type": "string"
+                      },
+                      "DailyFrequency": {
+                        "description": "How often each day to run the task.<br>This property governs how the properties DailyFrequencyTime, DailyIncrement, DailyStartTime, and DailyEndTime are interpreted.<br><br>Valid parameters for DailyFrequency are:<br><br>0 - ONCE - Run once on the day scheduled<br>DailyFrequencyTime - \"\", ignored<br>DailyIncrement - \"\", ignored<br>DailyStartTime - Time for task to run<br>DailyEndTime - \"\",ignored<br><br>1 - SEVERAL - Run Several times in a day<br>DailyFrequencyTime - 0 - Run every x minutes<br>DailyFrequencyTime - 1 - Run every x hours<br>DailyIncrement - # of minutes between runs or # of hours between runs<br>DailyStartTime - Time for tasks to start running<br>DailyEndTime - Time for task to stop running",
+                        "type": "string",
+                        "enum": [
+                          "Once",
+                          "Several"
+                        ]
+                      },
+                      "DailyFrequencyTime": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string",
+                        "enum": [
+                          "Hourly",
+                          "Minutes"
+                        ]
+                      },
+                      "DailyIncrement": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string"
+                      },
+                      "DailyStartTime": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string",
+                        "example": "23:59:59"
+                      },
+                      "DailyEndTime": {
+                        "description": "See DailyFrequency property for legal values",
+                        "type": "string",
+                        "example": "23:59:59"
+                      },
+                      "RunAfterGUID": {
+                        "description": "Execute this job when specified job completes",
+                        "type": "string"
+                      },
+                      "StartDate": {
+                        "description": "When to schedule the task first<br>Default is to start tomorrow",
+                        "type": "string",
+                        "example": "2026-12-31"
+                      },
+                      "EndDate": {
+                        "description": "When to stop scheduling the task<br>Default is to never stop scheduling",
+                        "type": "string",
+                        "example": "2026-12-31"
+                      },
+                      "MirrorStatus": {
+                        "description": "Used to control the execution of tasks when the system is part of a Mirror. Tasks may be scheduled to run on each Mirror Member, but will only be executed if the current status matches what is indicated by this property. This property is ignored by the Task Manager if the system is not a Mirror member.<br>Status = 1 - run only on Primary Mirror member (default)<br>Status = 2 - run only on a Non-Primary Mirror member<br>Status = 3 - run on Any Mirror member regardless of status",
+                        "type": "string",
+                        "enum": [
+                          "Primary",
+                          "Non-Primary",
+                          "Any"
+                        ]
+                      },
+                      "RescheduleOnStart": {
+                        "description": "If true, when the CheckSchedule class method is called with SystemStart=1 any jobs pending in the task queue will be removed, and rescheduled for their next time. For example, the journal switch is scheduled for midnight. If the system goes down at 11 pm, and then restarts at 1 am, the journal switch would normally run. But since we just started, we don't really want it to switch, so we reschedule it for the next time.<br>Default=0",
+                        "type": "boolean"
+                      },
+                      "Description": {
+                        "description": "Description of task",
+                        "type": "string"
+                      },
+                      "Settings": {
+                        "description": "The settings associated with the TaskClass. This is an arbitrary object and the relevant keys depend on the TaskClass.",
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "headers": {
+        "Location": {
+          "description": "Relative URL of path to perform operations on the newly created server definition.",
+          "example": "/iris/api/admin/v1/task?id=1075"
+        }
+      },
+      "description": "Created"
+    }
+  },
+  "POST /v2/task/run": {
+    "method": "POST",
+    "path": "/v2/task/run",
+    "privileges": "(%Admin_Task:U) Run a task right now or at a specified time",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "query",
+        "required": true,
+        "description": "Id of a Task",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    ],
+    "request": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "RunNow": {
+                "description": "If true, the Datetime field will be ignored. Required.",
+                "type": "boolean"
+              },
+              "Datetime": {
+                "description": "The date and time on which to run the task, in YYYY-MM-DD HH:MM:SS format",
+                "type": "string",
+                "example": "2026-12-31 23:59:59"
+              }
+            }
+          }
+        }
+      }
+    },
+    "response": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "object",
+                    "properties": {
+                      "Errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "summary": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "console": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "result": {
+                    "type": "object"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "description": "Success"
+    }
+  }
+}

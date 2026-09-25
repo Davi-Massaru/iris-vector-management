@@ -1,3 +1,1 @@
-from app import app
-
-application = app
+from vector_admin.app import application

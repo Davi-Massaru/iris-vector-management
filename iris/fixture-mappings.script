@@ -1,0 +1,5 @@
+zn "%SYS"
+for pair="VECTORDATA:data","VECTORINDEX:index" { set dbname=$piece(pair,":"),directory="/usr/irissys/mgr/vector-fixture-"_$piece(pair,":",2)_"/" if '##class(Config.Databases).Exists(dbname) { set sc=##class(SYS.Database).CreateDatabase(directory) if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } kill p set p("Directory")=directory,p("ResourceName")="%DB_USER" set sc=##class(Config.Databases).Create(dbname,.p) if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } } }
+for pair="VectorFixtureMappedD:VECTORDATA","VectorFixtureMappedI:VECTORINDEX" { kill p set p("Database")=$piece(pair,":",2) set sc=##class(Config.MapGlobals).Create("USER",$piece(pair,":"),.p) if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } }
+write !,"VECTOR_MAPPING_OK",!
+halt

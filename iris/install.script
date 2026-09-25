@@ -1,0 +1,12 @@
+zn "%SYS"
+for resource="VectorAdmin_Read","VectorAdmin_Maintain","VectorAdmin_Admin" { if '##class(Security.Resources).Exists(resource) { set sc=##class(Security.Resources).Create(resource,"Vector portal permission","",0) if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } } }
+if '##class(Security.Roles).Exists("VectorAdminReader") { set sc=##class(Security.Roles).Create("VectorAdminReader","Portal reader","VectorAdmin_Read:U,%DB_USER:R,%Admin_Manage:U") if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } }
+if '##class(Security.Roles).Exists("VectorAdminMaintainer") { set sc=##class(Security.Roles).Create("VectorAdminMaintainer","Guarded vector maintenance","VectorAdmin_Read:U,VectorAdmin_Maintain:U") if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } }
+if '##class(Security.Roles).Exists("VectorAdminAdministrator") { set sc=##class(Security.Roles).Create("VectorAdminAdministrator","Portal configuration administration","VectorAdmin_Read:U,VectorAdmin_Admin:U") if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt } }
+set p("NameSpace")="USER",p("Enabled")=1,p("AutheEnabled")=32,p("AutoCompile")=1,p("CSPZENEnabled")=1,p("InbndWebServicesEnabled")=1,p("UseCookies")=2,p("CookiePath")="/vector-admin/",p("DispatchClass")="%SYS.Python.WSGI",p("WSGIAppName")="wsgi",p("WSGICallable")="application",p("WSGIAppLocation")="/usr/irissys/csp/vector-admin/",p("WSGIType")=1,p("WSGIDebug")=0,p("Recurse")=1,p("Resource")="VectorAdmin_Read"
+if ##class(Security.Applications).Exists("/vector-admin") { set sc=##class(Security.Applications).Modify("/vector-admin",.p) } else { set sc=##class(Security.Applications).Create("/vector-admin",.p) }
+if $system.Status.IsError(sc) { do $system.Status.DisplayError(sc) halt }
+zn "USER"
+try { set runner=##class(%SYS.Python).Import("runpy") do runner."run_path"("/usr/irissys/csp/vector-admin/tools/install.py") if $system.Util.GetEnviron("VECTOR_ADMIN_SEED")=1 { do runner."run_path"("/usr/irissys/csp/vector-admin/tools/fixtures.py") } } catch error { write !,"VECTOR_INSTALL_FAILED: ",error.DisplayString(),! halt }
+write !,"VECTOR_INSTALL_OK",!
+halt
