@@ -1,0 +1,38 @@
+erDiagram
+    VectorRecipe ||--o{ SeedSchedule : associa
+    VectorRecipe ||--o{ SeedRun : registra
+    VectorRecipe ||--o{ SeedRow : acompanha
+    SeedSchedule ||--o{ SeedRun : identifica
+    SeedRun ||--o| SeedMetrics : complementa
+    VectorRecipe {
+        string RecipeId PK
+        int Revision PK
+        string State
+        string Payload
+        string Fingerprint
+    }
+    SeedSchedule {
+        int TaskId PK
+        string RecipeId
+        int Revision
+    }
+    SeedRun {
+        string RunId PK
+        string RecipeId
+        int Revision
+        int TaskId
+        string State
+        string LastKey
+    }
+    SeedRow {
+        string RecipeId PK
+        string KeyHash PK
+        string SourceHash
+        string GeneratorHash
+    }
+    SeedMetrics {
+        string RunId PK
+        int CreatedCount
+        int MissingCount
+        string Policy
+    }

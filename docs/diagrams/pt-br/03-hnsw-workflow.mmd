@@ -1,0 +1,10 @@
+flowchart TD
+    A["Validar elegibilidade e montar DDL"] --> B["Salvar Operation como PREPARED"]
+    B --> C["Token de cinco minutos e confirmação do alvo"]
+    C --> D["Revalidar fingerprint do catálogo"]
+    D --> E["UPDATE condicional: PREPARED para RUNNING"]
+    E --> F["VectorAdmin.Runtime inicia JOB"]
+    F --> G["Lock de manutenção e nova validação"]
+    G --> H["Executar CREATE INDEX"]
+    H --> I["Consultar catálogo e EXPLAIN"]
+    I --> J["Registrar resultado e auditoria"]

@@ -16,25 +16,7 @@ The browser opens `/vector-admin/`. The IRIS web application dispatches requests
 
 The WSGI process executes SQL and accesses IRIS classes through the `iris` module. A local HTTP client handles SysAdmin API calls with the request operator's credentials. HNSW creation runs in a `JOB`; vector generation runs as an IRIS Task Manager task.
 
-```mermaid
-flowchart TD
-    Browser["Browser: HTML, CSS, and JavaScript"] --> Web["Web application /vector-admin"]
-    subgraph IRIS["InterSystems IRIS"]
-        Web --> WSGI["%SYS.Python.WSGI"]
-        WSGI --> Router["vector_admin.app"]
-        Router --> Python["Embedded Python services"]
-        Python --> SQL["Vector SQL and compiled dictionary"]
-        Python --> Admin["SysAdmin API v2 over loopback"]
-        Admin --> Tasks["Task Manager"]
-        Tasks --> Seed["VectorAdmin.SeedTask"]
-        Seed --> Runner["seed_runner.execute"]
-        Runner --> SQL
-        Python --> Runtime["VectorAdmin.Runtime"]
-        Runtime --> Worker["JOB for index creation"]
-        Worker --> SQL
-        SQL --> Storage["Tables, indexes, and globals"]
-    end
-```
+![Application architecture](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/diagrams/en/01-architecture.png)
 
 IRIS executes the similarity query and the SQL `EMBEDDING` function. The browser receives data and operational evidence through the portal.
 
@@ -158,7 +140,7 @@ The catalog can associate the vector with `Content` and `vector-fixture-tiny`. I
 
 A task created by the portal adds an ordinary `VECTOR(DOUBLE,n)` column, including when it uses a model. The recipe stores the operational relationship with the source and generator. The resulting column remains a regular vector column; the schema does not become a managed `EMBEDDING` property.
 
-![Inventory filters and vector columns](docs/screenshots/01-inventory.png)
+![Inventory filters and vector columns](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/01-inventory.png)
 
 ### The catalog reads the compiled dictionary
 
@@ -193,46 +175,7 @@ Vector values stay in their destination tables. `tools/install.py` creates the `
 
 The associations used by the application are logical. The installation DDL does not declare foreign keys between these tables.
 
-```mermaid
-erDiagram
-    VectorRecipe ||--o{ SeedSchedule : associates
-    VectorRecipe ||--o{ SeedRun : records
-    VectorRecipe ||--o{ SeedRow : tracks
-    SeedSchedule ||--o{ SeedRun : identifies
-    SeedRun ||--o| SeedMetrics : supplements
-    VectorRecipe {
-        string RecipeId PK
-        int Revision PK
-        string State
-        string Payload
-        string Fingerprint
-    }
-    SeedSchedule {
-        int TaskId PK
-        string RecipeId
-        int Revision
-    }
-    SeedRun {
-        string RunId PK
-        string RecipeId
-        int Revision
-        int TaskId
-        string State
-        string LastKey
-    }
-    SeedRow {
-        string RecipeId PK
-        string KeyHash PK
-        string SourceHash
-        string GeneratorHash
-    }
-    SeedMetrics {
-        string RunId PK
-        int CreatedCount
-        int MissingCount
-        string Policy
-    }
-```
+![Operational data model](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/diagrams/en/02-operational-model.png)
 
 The current workflow creates recipes at revision 1 and exposes no revision editor. Despite its name, `SeedTask.RecipeRevision` stores the recipe identifier. The executor resolves that identifier to the latest version at run time.
 
@@ -255,7 +198,7 @@ The **Preview vector** action makes a separate request. The backend uses `%EXTER
 
 The inventory counters describe the current page. The screen does not execute `COUNT(*)` against data tables.
 
-![Managed embedding records](docs/screenshots/02-records.png)
+![Managed embedding records](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/02-records.png)
 
 ## 6. Similarity search and SQL plan inspection
 
@@ -287,7 +230,7 @@ Before running the search, `search.execute` obtains `EXPLAIN`. The diagnosis loo
 
 Top K is limited to 100. IRIS locks protect two concurrency slots across WSGI processes. The displayed time includes plan retrieval and query execution. The backend's `indexed` mode checks for a compatible index and does not force the optimizer with a SQL hint.
 
-![Similarity search with an HNSW-backed result](docs/screenshots/03-search.png)
+![Similarity search with an HNSW-backed result](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/03-search.png)
 
 ## 7. HNSW: validated proposals and asynchronous execution
 
@@ -303,22 +246,11 @@ AS HNSW(Distance='Cosine', M=24, efConstruction=100)
 
 `DotProduct` requires the operator to declare that the vectors are normalized. Preflight records that assertion; it does not scan the table to verify normalization.
 
-```mermaid
-flowchart TD
-    A["Validate eligibility and build DDL"] --> B["Save Operation as PREPARED"]
-    B --> C["Five-minute token and exact-target confirmation"]
-    C --> D["Revalidate catalog fingerprint"]
-    D --> E["Conditional UPDATE: PREPARED to RUNNING"]
-    E --> F["VectorAdmin.Runtime starts JOB"]
-    F --> G["Maintenance lock and another validation"]
-    G --> H["Execute CREATE INDEX"]
-    H --> I["Read catalog and EXPLAIN"]
-    I --> J["Record outcome and audit event"]
-```
+![HNSW creation workflow](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/diagrams/en/03-hnsw-workflow.png)
 
 The conditional `UPDATE` must affect exactly one row, so each proposal can be consumed once across processes. After DDL execution, the worker looks for the created definition and records a verification plan. An observation error after DDL issuance can produce `UNKNOWN`. Inspect the catalog to establish the outcome before attempting another operation.
 
-![HNSW index inventory and guarded creation form](docs/screenshots/05-indexes.png)
+![HNSW index inventory and guarded creation form](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/05-indexes.png)
 
 ## 8. Recipes: populate a new vector column
 
@@ -334,33 +266,9 @@ Preflight rejects null or duplicate keys in source and destination, checks that 
 
 `catalog.source_tables` supplies the table selector. It suggests a relationship column named `ID`, or a name ending in `ID`. Preflight checks uniqueness and nulls; the suggestion alone establishes neither property.
 
-![New vector column task configured for data.Document](docs/screenshots/06-vector-tasks.png)
+![New vector column task configured for data.Document](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/06-vector-tasks.png)
 
-```mermaid
-sequenceDiagram
-    actor Operator
-    participant UI as Interface
-    participant API as Python backend
-    participant Admin as SysAdmin API
-    participant Task as Task Manager / SeedTask
-    participant Runner as Embedded Python runner
-    participant DB as IRIS SQL
-    Operator->>UI: Define source, destination, and generator
-    UI->>API: Create DRAFT and request preflight
-    API->>DB: Check metadata, keys, and sample
-    API-->>UI: DDL, target, and token
-    Operator->>UI: Confirm and publish
-    UI->>API: Publish recipe and request task
-    API->>Admin: POST /v2/task, On Demand
-    Operator->>UI: Run now
-    UI->>API: Request execution
-    API->>Admin: POST /v2/task/run
-    Admin->>Task: Schedule execution
-    Task->>Runner: OnTask calls run_recipe
-    Runner->>DB: Create column and process records
-    Runner->>DB: Save signatures and run counters
-    UI->>API: Read history and counters
-```
+![Recipe and task execution](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/diagrams/en/04-recipe-sequence.png)
 
 ### Generation through the IRIS embedding mechanism
 
@@ -395,7 +303,7 @@ Transformers supplies BERT and its tokenizer; SentenceTransformers applies token
 
 **Embedding configs** reads configuration names, provider classes, dimensions, and allowed public settings through `/api/instances/local/embedding-configs`. The screen supports inspection; provider registration is handled outside this interface.
 
-![Available embedding configurations](docs/screenshots/08-configurations.png)
+![Available embedding configurations](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/08-configurations.png)
 
 ### Generation through a Python function
 
@@ -413,7 +321,7 @@ def generate(row, context):
 
 The runtime exposes a reduced set of built-ins. The feature executes trusted administrator code inside IRIS; these restrictions do not form a security sandbox. SQL cancellation does not impose a CPU limit on arbitrary Python code.
 
-![Python generator with successful syntax and sample validation](docs/screenshots/07-python-editor.png)
+![Python generator with successful syntax and sample validation](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/07-python-editor.png)
 
 ## 9. Reruns, signatures, and per-row transactions
 
@@ -502,27 +410,19 @@ The initial task listing sends `filter='VectorAdmin'` to `/v2/tasks`, then check
 
 The interface polls every 5 to 30 seconds according to data changes. Polling stops when the page is hidden or the user leaves the task view.
 
-![Task Manager status and vector task list](docs/screenshots/10-task-monitor.png)
+![Task Manager status and vector task list](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/10-task-monitor.png)
 
 ## 11. From namespace to directory: locating vector storage
 
 `placement.inspect` connects SQL metadata to IRIS storage. It reads `DataLocation`, `IdLocation`, `IndexLocation`, and `StreamLocation` from `%Dictionary.CompiledStorage`, then combines those globals with namespace defaults, mappings, and the database inventory returned by SysAdmin.
 
-```mermaid
-flowchart LR
-    A["SQL table and property"] --> B["Compiled class"]
-    B --> C["Storage definition"]
-    C --> D["Data or index global"]
-    D --> E["Mapping or namespace default database"]
-    E --> F["IRIS database"]
-    F --> G["Database directory"]
-```
+![Storage placement resolution](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/diagrams/en/05-storage-placement.png)
 
 The `VectorFixture.Mapped` fixture uses separate data and index globals: `^VectorFixtureMappedD` and `^VectorFixtureMappedI`. Fixture scripts configure mappings to exercise this resolution.
 
 The resolver reports only relationships established by the available metadata. Custom storage, subscript expressions, overlapping mappings, and unknown precedence produce partial data or `Unresolved`. The screen displays the evidence and reason for that result.
 
-![Storage globals, databases, and directories](docs/screenshots/04-placement.png)
+![Storage globals, databases, and directories](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/04-placement.png)
 
 ## 12. Authorization and execution controls
 
@@ -542,7 +442,7 @@ POST requests require a CSRF token and validate the `Origin` header when present
 
 Auditing stores selected operational metadata without SQL arguments, document text, or vector values. The embedding-configuration screen exposes only `modelName`, `maxTokens`, and `checkTokenCount` from the configuration JSON. Capability flags keep generic row editing, configuration editing, and index drop/rebuild unavailable; authorized generation tasks write their configured vector column through the dedicated workflow.
 
-![Installed IRIS version, feature gates, and limits](docs/screenshots/09-capabilities.png)
+![Installed IRIS version, feature gates, and limits](https://raw.githubusercontent.com/Davi-Massaru/iris-vector-management/refs/heads/master/docs/screenshots/09-capabilities.png)
 
 ## 13. Practical example: maintain document vectors as the source changes
 

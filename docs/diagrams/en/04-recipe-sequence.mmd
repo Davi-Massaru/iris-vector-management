@@ -1,0 +1,23 @@
+sequenceDiagram
+    actor Operator
+    participant UI as Interface
+    participant API as Python backend
+    participant Admin as SysAdmin API
+    participant Task as Task Manager / SeedTask
+    participant Runner as Embedded Python runner
+    participant DB as IRIS SQL
+    Operator->>UI: Define source, destination, and generator
+    UI->>API: Create DRAFT and request preflight
+    API->>DB: Check metadata, keys, and sample
+    API-->>UI: DDL, target, and token
+    Operator->>UI: Confirm and publish
+    UI->>API: Publish recipe and request task
+    API->>Admin: POST /v2/task, On Demand
+    Operator->>UI: Run now
+    UI->>API: Request execution
+    API->>Admin: POST /v2/task/run
+    Admin->>Task: Schedule execution
+    Task->>Runner: OnTask calls run_recipe
+    Runner->>DB: Create column and process records
+    Runner->>DB: Save signatures and run counters
+    UI->>API: Read history and counters

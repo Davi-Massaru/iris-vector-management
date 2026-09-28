@@ -1,0 +1,17 @@
+flowchart TD
+    Browser["Navegador: HTML, CSS e JavaScript"] --> Web["Aplicação web /vector-admin"]
+    subgraph IRIS["InterSystems IRIS"]
+        Web --> WSGI["%SYS.Python.WSGI"]
+        WSGI --> Router["vector_admin.app"]
+        Router --> Python["Serviços em Embedded Python"]
+        Python --> SQL["SQL vetorial e dicionário compilado"]
+        Python --> Admin["SysAdmin API v2 via loopback"]
+        Admin --> Tasks["Task Manager"]
+        Tasks --> Seed["VectorAdmin.SeedTask"]
+        Seed --> Runner["seed_runner.execute"]
+        Runner --> SQL
+        Python --> Runtime["VectorAdmin.Runtime"]
+        Runtime --> Worker["JOB para criação de índice"]
+        Worker --> SQL
+        SQL --> Storage["Tabelas, índices e globals"]
+    end
